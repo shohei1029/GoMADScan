@@ -2,47 +2,121 @@ package main
 
 import (
 	"fmt"
-	"github.com/mattn/go-gtk/gdkpixbuf"
+	// "github.com/mattn/go-gtk/gdkpixbuf"
 	"github.com/mattn/go-gtk/glib"
 	"github.com/mattn/go-gtk/gtk"
+	"log"
+	"io/ioutil"
 	"os"
-	"os/exec"
+	// "os/exec"
 	"path/filepath"
-	"regexp"
-	"sort"
+	// "regexp"
+	// "sort"
 	"strings"
+	"strconv"
 )
 
-func uniq(strings []string) (ret []string) {
-	return
-}
+var (
+	delimName = []string{"Select deliminator", "tab (\\t)", "space ( )", "comma (,)", "period (.)", "colon (:)"}
+	delimList = []string{"\t", "\t", " ", ",", ".", ":"}
+)
+
+// minimum size for the array size of keywords
+const minSize = 50
 
 func authors() []string {
-	if b, err := exec.Command("git", "log").Output(); err == nil {
-		lines := strings.Split(string(b), "\n")
+	return []string{"carushi<l.cawaguchi@gmail.com>\n\nReference:"}
+}
 
-		var a []string
-		r := regexp.MustCompile(`^Author:\s*([^ <]+).*$`)
-		for _, e := range lines {
-			ms := r.FindStringSubmatch(e)
-			if ms == nil {
-				continue
+type arguments struct {
+	column     int
+	inputPath  string
+	filterPath string
+	outputPath string
+	ignoreCase bool
+	delim      string
+}
+
+func (a *arguments) setDeliminator() {
+	if len(a.delim) > 1 {
+		for i, delim := range delimName {
+			if a.delim == delim {
+				a.delim = delimList[i]
+				return
 			}
-			a = append(a, ms[1])
 		}
-		sort.Strings(a)
-		var p string
-		lines = []string{}
-		for _, e := range a {
-			if p == e {
-				continue
-			}
-			lines = append(lines, e)
-			p = e
-		}
-		return lines
+		a.delim = delimList[0]
 	}
-	return []string{"carushi<l.cawaguchi@gmail.com>"}
+}
+
+func getKeywords(key string, ignoreCase bool) ([]string, error) {
+	lines, err := ioutil.ReadFile(key)
+	keyList := make([]string, 0, minSize)
+	if err != nil {
+		return keyList, err
+	}
+	for _, gene := range strings.Split(string(lines), "\n") {
+		gene = strings.TrimRight(gene, "\r")
+		if len(gene) == 0 {
+			continue
+		}
+		if ignoreCase {
+			keyList = append(keyList, strings.ToUpper(gene))
+		} else {
+			keyList = append(keyList, gene)
+		}
+	}
+	return keyList, err
+
+}
+
+func searchKeywords(column int, inputPath string, delim string, keyList []string, ignoreCase bool) ([]string, error) {
+	matchedLines := make([]string, 0, minSize)
+	lines, err := ioutil.ReadFile(inputPath)
+	if err != nil {
+		return matchedLines, err
+	}
+	for _, line := range strings.Split(string(lines), "\n") {
+		s := strings.Split(strings.TrimRight(line, "\r"), delim)
+		if len(s) <= column {
+			continue
+		}
+		if ignoreCase {
+			s[column] = strings.ToUpper(s[column])
+		}
+		for _, key := range keyList {
+			if s[column] == key {
+				matchedLines = append(matchedLines, line)
+				break
+			}
+		}
+	}
+	return matchedLines, err
+}
+
+func output(outputPath string, matchedLines []string) {
+	err := ioutil.WriteFile(outputPath, []byte(strings.Join(matchedLines[:], "\n")), 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func getKeysearchWords(arg arguments) (int, error) {
+	arg.setDeliminator()
+	fmt.Println("Read: "+arg.filterPath)
+	keyList, err := getKeywords(arg.filterPath, arg.ignoreCase)
+	if err != nil {
+		return -1, err
+	}
+	fmt.Println("Read: "+arg.inputPath)
+	matchedLines, err := searchKeywords(arg.column, arg.inputPath, arg.delim, keyList, arg.ignoreCase)
+	fmt.Printf("Write: %s, n=", arg.outputPath)
+	fmt.Println(len(matchedLines))
+	if len(matchedLines) == 0 || err != nil {
+		return 0, err
+	}
+	output(arg.outputPath, matchedLines)
+	return len(matchedLines), err
 }
 
 func main() {
@@ -53,9 +127,9 @@ func main() {
 	window.SetTitle("MADscan")
 	window.SetIconName("MADscan-info")
 	window.Connect("destroy", func(ctx *glib.CallbackContext) {
-		fmt.Println("Exit!", ctx.Data().(string))
+		fmt.Println("got destroy!", ctx.Data().(string))
 		gtk.MainQuit()
-	}, "Exit")
+	}, "foo")
 
 	//--------------------------------------------------------
 	// GtkVBox
@@ -81,7 +155,7 @@ func main() {
 	framebox1 := gtk.NewVBox(false, 1)
 	frame1.Add(framebox1)
 
-	frame2 := gtk.NewFrame("Input")
+	frame2 := gtk.NewFrame("Column position")
 	framebox2 := gtk.NewVBox(false, 1)
 	frame2.Add(framebox2)
 
@@ -92,137 +166,182 @@ func main() {
 	// GtkImage
 	//--------------------------------------------------------
 	dir, _ := filepath.Split(os.Args[0])
-	fmt.Println(dir)
-	imagefile := filepath.Join(dir, "/../image/logo.png")
-	fmt.Println(imagefile)
+	imagefile := filepath.Join(dir, "../image/logo.png")
 	label := gtk.NewLabel("Modification associated database scanner")
 	label.ModifyFontEasy("DejaVu Serif 15")
 	framebox1.PackStart(label, false, true, 0)
-
-	//--------------------------------------------------------
-	// Data input and output filename
-	//--------------------------------------------------------
-	// inputpath := filpath.Join(dir, "../data/")
-	// filterpath := filepath.Join(dir, "../data/Ras_family_list.txt")
-	// outputpath := filepath.Join(dir, "../data/output.txt")
-
-
-	//--------------------------------------------------------
-	// GtkEntry
-	//--------------------------------------------------------
-	entry := gtk.NewEntry()
-	// entry.SetText("Hello world")
-	// framebox1.Add(entry)
-
 	image := gtk.NewImageFromFile(imagefile)
 	framebox1.Add(image)
 
 	//--------------------------------------------------------
+	// Data input and output filename
+	//--------------------------------------------------------
+	arg := arguments{
+		0,
+		filepath.Join(dir, "../data/Acetylation_site_dataset"),
+		filepath.Join(dir, "../data/Ras_gene_list.txt"),
+		filepath.Join(dir, "../data/output.txt"),
+		false,
+		"\t"}
+
+	//--------------------------------------------------------
 	// GtkScale
 	//--------------------------------------------------------
-	scale := gtk.NewHScaleWithRange(0, 100, 1)
+	scale := gtk.NewHScaleWithRange(0, 20, 1)
 	scale.Connect("value-changed", func() {
-		fmt.Println("scale:", int(scale.GetValue()))
+		arg.column = int(scale.GetValue())
+		// fmt.Println("scale:", int(scale.GetValue()))
 	})
-	// framebox2.Add(scale)
+	framebox2.Add(scale)
 
 	//--------------------------------------------------------
-	// GtkHBox
+	// InputArea
 	//--------------------------------------------------------
-	buttons := gtk.NewHBox(false, 1)
-
-	//--------------------------------------------------------
-	// GtkButton
-	//--------------------------------------------------------
-	button := gtk.NewButtonWithLabel("Button with label")
+	ientry := gtk.NewEntry()
+	ientry.SetText(arg.inputPath)
+	inputs := gtk.NewHBox(false, 1)
+	button := gtk.NewButtonWithLabel("Choose input file")
 	button.Clicked(func() {
-		fmt.Println("button clicked:", button.GetLabel())
-		messagedialog := gtk.NewMessageDialog(
+		//--------------------------------------------------------
+		// GtkFileChooserDialog
+		//--------------------------------------------------------
+		filechooserdialog := gtk.NewFileChooserDialog(
+			"Choose File...",
 			button.GetTopLevelAsWindow(),
-			gtk.DIALOG_MODAL,
-			gtk.MESSAGE_INFO,
-			gtk.BUTTONS_OK,
-			entry.GetText())
-		messagedialog.Response(func() {
-			fmt.Println("Dialog OK!")
-
-			//--------------------------------------------------------
-			// GtkFileChooserDialog
-			//--------------------------------------------------------
-			filechooserdialog := gtk.NewFileChooserDialog(
-				"Choose File...",
-				button.GetTopLevelAsWindow(),
-				gtk.FILE_CHOOSER_ACTION_OPEN,
-				gtk.STOCK_OK,
-				gtk.RESPONSE_ACCEPT)
-			filter := gtk.NewFileFilter()
-			// filter.AddPattern("*.txt")
-			// filter.AddPattern("*.csv")
-			filechooserdialog.AddFilter(filter)
-			filechooserdialog.Response(func() {
-				fmt.Println(filechooserdialog.GetFilename())
-				filechooserdialog.Destroy()
-			})
-			filechooserdialog.Run()
-			messagedialog.Destroy()
+			gtk.FILE_CHOOSER_ACTION_OPEN,
+			gtk.STOCK_OK,
+			gtk.RESPONSE_ACCEPT)
+		filter := gtk.NewFileFilter()
+		filter.AddPattern("*")
+		filechooserdialog.AddFilter(filter)
+		filechooserdialog.Response(func() {
+			arg.inputPath = filechooserdialog.GetFilename()
+			ientry.SetText(arg.inputPath)
+			filechooserdialog.Destroy()
 		})
-		messagedialog.Run()
+		filechooserdialog.Run()
 	})
-	buttons.Add(button)
+	inputs.Add(button)
+	inputs.Add(ientry)
+	framebox2.PackStart(inputs, false, false, 0)
 
 	//--------------------------------------------------------
-	// GtkFontButton
+	// FilterArea
 	//--------------------------------------------------------
-	fontbutton := gtk.NewFontButton()
-	fontbutton.Connect("font-set", func() {
-		fmt.Println("title:", fontbutton.GetTitle())
-		fmt.Println("fontname:", fontbutton.GetFontName())
-		fmt.Println("use_size:", fontbutton.GetUseSize())
-		fmt.Println("show_size:", fontbutton.GetShowSize())
-	})
-	buttons.Add(fontbutton)
-	framebox2.PackStart(buttons, false, false, 0)
 
-	buttons = gtk.NewHBox(false, 1)
+	oentry := gtk.NewEntry()
+	oentry.SetText(arg.outputPath)
+	inputs = gtk.NewHBox(false, 1)
+	button = gtk.NewButtonWithLabel("Choose output file")
+	button.Clicked(func() {
+		//--------------------------------------------------------
+		// GtkFileChooserDialog
+		//--------------------------------------------------------
+		filechooserdialog := gtk.NewFileChooserDialog(
+			"Choose File...",
+			button.GetTopLevelAsWindow(),
+			gtk.FILE_CHOOSER_ACTION_OPEN,
+			gtk.STOCK_OK,
+			gtk.RESPONSE_ACCEPT)
+		filter := gtk.NewFileFilter()
+		filter.AddPattern("*")
+		filechooserdialog.AddFilter(filter)
+		filechooserdialog.Response(func() {
+			arg.outputPath = filechooserdialog.GetFilename()
+			oentry.SetText(arg.outputPath)
+			filechooserdialog.Destroy()
+		})
+		filechooserdialog.Run()
+	})
+	inputs.Add(button)
+	inputs.Add(oentry)
+	framebox2.PackStart(inputs, false, false, 0)
 
 	//--------------------------------------------------------
-	// GtkToggleButton
+	// FilterArea
 	//--------------------------------------------------------
-	togglebutton := gtk.NewToggleButtonWithLabel("ToggleButton with label")
-	togglebutton.Connect("toggled", func() {
-		if togglebutton.GetActive() {
-			togglebutton.SetLabel("ToggleButton ON!")
-		} else {
-			togglebutton.SetLabel("ToggleButton OFF!")
-		}
+
+	fentry := gtk.NewEntry()
+	fentry.SetText(arg.filterPath)
+	inputs = gtk.NewHBox(false, 1)
+	button = gtk.NewButtonWithLabel("Choose keyword file")
+	button.Clicked(func() {
+		//--------------------------------------------------------
+		// GtkFileChooserDialog
+		//--------------------------------------------------------
+		filechooserdialog := gtk.NewFileChooserDialog(
+			"Choose File...",
+			button.GetTopLevelAsWindow(),
+			gtk.FILE_CHOOSER_ACTION_OPEN,
+			gtk.STOCK_OK,
+			gtk.RESPONSE_ACCEPT)
+		filter := gtk.NewFileFilter()
+		filter.AddPattern("*")
+		filechooserdialog.AddFilter(filter)
+		filechooserdialog.Response(func() {
+			arg.filterPath = filechooserdialog.GetFilename()
+			fentry.SetText(arg.filterPath)
+			filechooserdialog.Destroy()
+		})
+		filechooserdialog.Run()
 	})
-	buttons.Add(togglebutton)
+	inputs.Add(button)
+	inputs.Add(fentry)
+	framebox2.PackStart(inputs, false, false, 0)
+
+	buttons := gtk.NewHBox(false, 1)
 
 	//--------------------------------------------------------
 	// GtkCheckButton
 	//--------------------------------------------------------
-	checkbutton := gtk.NewCheckButtonWithLabel("CheckButton with label")
+	checkbutton := gtk.NewCheckButtonWithLabel("Ignore lower/upper case")
 	checkbutton.Connect("toggled", func() {
 		if checkbutton.GetActive() {
-			checkbutton.SetLabel("CheckButton CHECKED!")
+			arg.ignoreCase = true
 		} else {
-			checkbutton.SetLabel("CheckButton UNCHECKED!")
+			arg.ignoreCase = false
 		}
 	})
 	buttons.Add(checkbutton)
 
-	//--------------------------------------------------------
-	// GtkRadioButton
-	//--------------------------------------------------------
-	buttonbox := gtk.NewVBox(false, 1)
-	radiofirst := gtk.NewRadioButtonWithLabel(nil, "Radio1")
-	buttonbox.Add(radiofirst)
-	buttonbox.Add(gtk.NewRadioButtonWithLabel(radiofirst.GetGroup(), "Radio2"))
-	buttonbox.Add(gtk.NewRadioButtonWithLabel(radiofirst.GetGroup(), "Radio3"))
-	buttons.Add(buttonbox)
-	//radiobutton.SetMode(false);
-	radiofirst.SetActive(true)
+	combobox := gtk.NewComboBoxText()
+	for _, delim := range delimName {
+		combobox.AppendText(delim)
+	}
+	combobox.SetActive(0)
+	combobox.Connect("changed", func() {
+		fmt.Println("value:", combobox.GetActiveText())
+		arg.delim = combobox.GetActiveText()
+	})
+	buttons.Add(combobox)
 
+	//--------------------------------------------------------
+	// GtkTextView
+	//--------------------------------------------------------
+	swin := gtk.NewScrolledWindow(nil, nil)
+	swin.SetPolicy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+	swin.SetShadowType(gtk.SHADOW_IN)
+	textview := gtk.NewTextView()
+	// var start, end gtk.TextIter
+	var end gtk.TextIter
+	buffer := textview.GetBuffer()
+	swin.Add(textview)
+
+	//--------------------------------------------------------
+	// Run button
+	//--------------------------------------------------------
+	runbutton := gtk.NewButtonWithLabel("Run")
+	runbutton.Clicked(func() {
+		num, err := getKeysearchWords(arg)
+		buffer.GetStartIter(&end)
+		if err != nil {
+			log.Println(err)
+			buffer.Insert(&end, err.Error()+"\n")
+		} else {
+			buffer.Insert(&end, "Results n="+strconv.Itoa(num)+"\n")
+		}
+	})
+	buttons.Add(runbutton)
 	framebox2.PackStart(buttons, false, false, 0)
 
 	//--------------------------------------------------------
@@ -232,57 +351,13 @@ func main() {
 	framebox2.PackStart(vsep, false, false, 0)
 
 	//--------------------------------------------------------
-	// GtkComboBoxEntry
-	//--------------------------------------------------------
-	combos := gtk.NewHBox(false, 1)
-	comboboxentry := gtk.NewComboBoxText()
-	comboboxentry.AppendText("Monkey")
-	comboboxentry.AppendText("Tiger")
-	comboboxentry.AppendText("Elephant")
-	comboboxentry.Connect("changed", func() {
-		fmt.Println("value:", comboboxentry.GetActiveText())
-	})
-	combos.Add(comboboxentry)
-
-	//--------------------------------------------------------
-	// GtkComboBox
-	//--------------------------------------------------------
-	combobox := gtk.NewComboBoxText()
-	combobox.AppendText("Peach")
-	combobox.AppendText("Banana")
-	combobox.AppendText("Apple")
-	combobox.SetActive(1)
-	combobox.Connect("changed", func() {
-		fmt.Println("value:", combobox.GetActiveText())
-	})
-	combos.Add(combobox)
-
-	framebox2.PackStart(combos, false, false, 0)
-
-	//--------------------------------------------------------
 	// GtkTextView
 	//--------------------------------------------------------
-	swin := gtk.NewScrolledWindow(nil, nil)
-	swin.SetPolicy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-	swin.SetShadowType(gtk.SHADOW_IN)
-	textview := gtk.NewTextView()
-	var start, end gtk.TextIter
-	buffer := textview.GetBuffer()
-	buffer.GetStartIter(&start)
-	buffer.Insert(&start, "Hello ")
-	buffer.GetEndIter(&end)
-	buffer.Insert(&end, "World!")
-	tag := buffer.CreateTag("bold", map[string]string{
-		"background": "#FF0000", "weight": "700"})
-	buffer.GetStartIter(&start)
-	buffer.GetEndIter(&end)
-	buffer.ApplyTag(tag, &start, &end)
-	swin.Add(textview)
 	framebox2.Add(swin)
 
-	buffer.Connect("changed", func() {
-		fmt.Println("changed")
-	})
+	// buffer.Connect("changed", func() {
+	// 	// fmt.Println("changed")
+	// })
 
 	//--------------------------------------------------------
 	// GtkMenuItem
@@ -310,20 +385,6 @@ func main() {
 	})
 	submenu.Append(checkmenuitem)
 
-	menuitem = gtk.NewMenuItemWithMnemonic("_Font")
-	menuitem.Connect("activate", func() {
-		fsd := gtk.NewFontSelectionDialog("Font")
-		fsd.SetFontName(fontbutton.GetFontName())
-		fsd.Response(func() {
-			fmt.Println(fsd.GetFontName())
-			fontbutton.SetFontName(fsd.GetFontName())
-			fsd.Destroy()
-		})
-		fsd.SetTransientFor(window)
-		fsd.Run()
-	})
-	submenu.Append(menuitem)
-
 	cascademenu = gtk.NewMenuItemWithMnemonic("_Help")
 	menubar.Append(cascademenu)
 	submenu = gtk.NewMenu()
@@ -335,10 +396,6 @@ func main() {
 		dialog.SetName("MADscan")
 		dialog.SetProgramName("MADscan")
 		dialog.SetAuthors(authors())
-		dir, _ := filepath.Split(os.Args[0])
-		imagefile := filepath.Join(dir, "../../data/mattn-logo.png")
-		pixbuf, _ := gdkpixbuf.NewPixbufFromFile(imagefile)
-		dialog.SetLogo(pixbuf)
 		dialog.SetLicense("The library is available under the same terms and conditions as the Go, the BSD style license, and the LGPL (Lesser GNU Public License). The idea is that if you can use Go (and Gtk) in a project, you should also be able to use go-gtk.")
 		dialog.SetWrapLicense(true)
 		dialog.Run()
@@ -350,8 +407,8 @@ func main() {
 	// GtkStatusbar
 	//--------------------------------------------------------
 	statusbar := gtk.NewStatusbar()
-	context_id := statusbar.GetContextId("go-gtk")
-	statusbar.Push(context_id, "GTK binding for Go!")
+	context_id := statusbar.GetContextId("MADscan v0")
+	statusbar.Push(context_id, "Simple search GUI")
 
 	framebox2.PackStart(statusbar, false, false, 0)
 

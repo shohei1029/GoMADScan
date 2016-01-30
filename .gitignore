@@ -1,1 +1,4 @@
-.DS_Storeoutput.txt*_datasetMADscan
+.DS_Store
+output.txt
+*_dataset
+MADscan
