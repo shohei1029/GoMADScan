@@ -1,4 +1,7 @@
 # MADscan
+
+[![Build Status](https://drone.io/github.com/carushi/MADscan/status.png)](https://drone.io/github.com/carushi/MADscan/latest)
+
 Modification associated database scanner based on GUI inteface using go-gtk.
 
 ![](image/window.png)
