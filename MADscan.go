@@ -49,13 +49,22 @@ func (a *arguments) setDeliminator() {
 	}
 }
 
+func returnNewlineChar(lines string) string {
+	newline := "\n"
+	if !strings.Contains(lines, "\n") {
+		newline = "\r"
+	}
+	return newline
+}
+
 func getKeywords(key string, ignoreCase bool) ([]string, error) {
 	lines, err := ioutil.ReadFile(key)
 	keyList := make([]string, 0, minSize)
 	if err != nil {
 		return keyList, err
 	}
-	for _, gene := range strings.Split(string(lines), "\n") {
+	newline := returnNewlineChar(string(lines))
+	for _, gene := range strings.Split(string(lines), newline) {
 		gene = strings.TrimRight(gene, "\r")
 		if len(gene) == 0 {
 			continue
@@ -67,7 +76,6 @@ func getKeywords(key string, ignoreCase bool) ([]string, error) {
 		}
 	}
 	return keyList, err
-
 }
 
 func searchKeywords(column int, inputPath string, delim string, keyList []string, ignoreCase bool) ([]string, error) {
@@ -76,7 +84,8 @@ func searchKeywords(column int, inputPath string, delim string, keyList []string
 	if err != nil {
 		return matchedLines, err
 	}
-	for _, line := range strings.Split(string(lines), "\n") {
+	newline := returnNewlineChar(string(lines))
+	for _, line := range strings.Split(string(lines), newline) {
 		s := strings.Split(strings.TrimRight(line, "\r"), delim)
 		if len(s) <= column {
 			continue
@@ -166,7 +175,7 @@ func main() {
 	// GtkImage
 	//--------------------------------------------------------
 	dir, _ := filepath.Split(os.Args[0])
-	imagefile := filepath.Join(dir, "../image/logo.png")
+	imagefile := filepath.Join(dir, "../src/github.com/carushi/MADscan/image/logo.png")
 	label := gtk.NewLabel("Modification associated database scanner")
 	label.ModifyFontEasy("DejaVu Serif 15")
 	framebox1.PackStart(label, false, true, 0)
@@ -178,9 +187,9 @@ func main() {
 	//--------------------------------------------------------
 	arg := arguments{
 		0,
-		filepath.Join(dir, "../data/Acetylation_site_dataset"),
-		filepath.Join(dir, "../data/Ras_gene_list.txt"),
-		filepath.Join(dir, "../data/output.txt"),
+		filepath.Join(dir, "../src/github.com/carushi/MADscan/data/Acetylation_site_dataset"),
+		filepath.Join(dir, "../src/github.com/carushi/MADscan/data/Ras_gene_list.txt"),
+		filepath.Join(dir, "../src/github.com/carushi/MADscan/data/output.txt"),
 		false,
 		"\t"}
 

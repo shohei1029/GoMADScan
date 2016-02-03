@@ -28,7 +28,6 @@ go get github.com/carushi/MADscan
 	
 ### ToDo
 
-* MS newline (\\r\\n)
 * filename editing for output file
 * header skipping or including
 
