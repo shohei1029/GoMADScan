@@ -5,15 +5,12 @@ import (
 	// "github.com/mattn/go-gtk/gdkpixbuf"
 	"github.com/mattn/go-gtk/glib"
 	"github.com/mattn/go-gtk/gtk"
-	"log"
 	"io/ioutil"
+	"log"
 	"os"
-	// "os/exec"
 	"path/filepath"
-	// "regexp"
-	// "sort"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -25,7 +22,7 @@ var (
 const minSize = 50
 
 func authors() []string {
-	return []string{"carushi<l.cawaguchi@gmail.com>\n\nReference:"}
+	return []string{"carushi<l.cawaguchi(at)gmail.com>\n\nReference:"}
 }
 
 type arguments struct {
@@ -112,12 +109,12 @@ func output(outputPath string, matchedLines []string) {
 
 func getKeysearchWords(arg arguments) (int, error) {
 	arg.setDeliminator()
-	fmt.Println("Read: "+arg.filterPath)
+	fmt.Println("Read: " + arg.filterPath)
 	keyList, err := getKeywords(arg.filterPath, arg.ignoreCase)
 	if err != nil {
 		return -1, err
 	}
-	fmt.Println("Read: "+arg.inputPath)
+	fmt.Println("Read: " + arg.inputPath)
 	matchedLines, err := searchKeywords(arg.column, arg.inputPath, arg.delim, keyList, arg.ignoreCase)
 	fmt.Printf("Write: %s, n=", arg.outputPath)
 	fmt.Println(len(matchedLines))
@@ -136,9 +133,9 @@ func main() {
 	window.SetTitle("MADscan")
 	window.SetIconName("MADscan-info")
 	window.Connect("destroy", func(ctx *glib.CallbackContext) {
-		fmt.Println("got destroy!", ctx.Data().(string))
+		// fmt.Println("got destroy!", ctx.Data().(string))
 		gtk.MainQuit()
-	}, "foo")
+	}, "")
 
 	//--------------------------------------------------------
 	// GtkVBox
@@ -174,8 +171,8 @@ func main() {
 	//--------------------------------------------------------
 	// GtkImage
 	//--------------------------------------------------------
-	dir, _ := filepath.Split(os.Args[0])
-	imagefile := filepath.Join(dir, "../src/github.com/carushi/MADscan/image/logo.png")
+	dir := os.Getenv("GOPATH")
+	imagefile := filepath.Join(dir, "/src/github.com/carushi/MADscan/image/logo.png")
 	label := gtk.NewLabel("Modification associated database scanner")
 	label.ModifyFontEasy("DejaVu Serif 15")
 	framebox1.PackStart(label, false, true, 0)
@@ -187,9 +184,9 @@ func main() {
 	//--------------------------------------------------------
 	arg := arguments{
 		0,
-		filepath.Join(dir, "../src/github.com/carushi/MADscan/data/Acetylation_site_dataset"),
-		filepath.Join(dir, "../src/github.com/carushi/MADscan/data/Ras_gene_list.txt"),
-		filepath.Join(dir, "../src/github.com/carushi/MADscan/data/output.txt"),
+		filepath.Join(dir, "/src/github.com/carushi/MADscan/data/Acetylation_site_dataset"),
+		filepath.Join(dir, "/src/github.com/carushi/MADscan/data/Ras_gene_list.txt"),
+		filepath.Join(dir, "/src/github.com/carushi/MADscan/data/output.txt"),
 		false,
 		"\t"}
 
@@ -405,7 +402,7 @@ func main() {
 		dialog.SetName("MADscan")
 		dialog.SetProgramName("MADscan")
 		dialog.SetAuthors(authors())
-		dialog.SetLicense("The library is available under the same terms and conditions as the Go, the BSD style license, and the LGPL (Lesser GNU Public License). The idea is that if you can use Go (and Gtk) in a project, you should also be able to use go-gtk.")
+		dialog.SetLicense("GPL v3")
 		dialog.SetWrapLicense(true)
 		dialog.Run()
 		dialog.Destroy()
