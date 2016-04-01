@@ -36,6 +36,7 @@ RhoBTB1
 RhoBTB2
 H-Ras
 HRas
+K-Ras
 K-Ras2B
 KRas2B
 N-Ras

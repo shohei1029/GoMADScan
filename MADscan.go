@@ -7,11 +7,11 @@ import (
 	"github.com/mattn/go-gtk/gtk"
 	"io/ioutil"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-	"math"
 )
 
 var (
@@ -33,6 +33,14 @@ type arguments struct {
 	outputPath string
 	ignoreCase bool
 	delim      string
+}
+
+func isAlphaNum(c byte) bool {
+	if !(('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9')) {
+		fmt.Println(string(c))
+		return false
+	}
+	return true
 }
 
 func (a *arguments) setDeliminator() {
@@ -68,8 +76,19 @@ func getKeywords(key string, ignoreCase bool) ([]string, error) {
 			continue
 		}
 		if ignoreCase {
-			keyList = append(keyList, strings.ToUpper(gene))
-		} else {
+			gene = strings.ToUpper(gene)
+		}
+		keyList = append(keyList, gene)
+		symbol := false
+		for c := 0; c < len(gene); {
+			if !isAlphaNum(gene[c]) {
+				symbol = true
+				gene = strings.Replace(gene, string(gene[c]), "", 1)
+				continue
+			}
+			c++
+		}
+		if symbol {
 			keyList = append(keyList, gene)
 		}
 	}
