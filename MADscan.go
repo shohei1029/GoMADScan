@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"math"
 )
 
 var (
@@ -84,15 +85,19 @@ func searchKeywords(column int, inputPath string, delim string, keyList []string
 	newline := returnNewlineChar(string(lines))
 	for _, line := range strings.Split(string(lines), newline) {
 		s := strings.Split(strings.TrimRight(line, "\r"), delim)
-		if len(s) <= column {
-			continue
-		}
-		if ignoreCase {
-			s[column] = strings.ToUpper(s[column])
-		}
-		for _, key := range keyList {
-			if s[column] == key {
-				matchedLines = append(matchedLines, line)
+		notMatched := true
+		for i := int(math.Max(float64(column-1), float64(0))); i < len(s) && notMatched; i++ {
+			if ignoreCase {
+				s[i] = strings.ToUpper(s[i])
+			}
+			for _, key := range keyList {
+				if s[i] == key {
+					matchedLines = append(matchedLines, line)
+					notMatched = false
+					break
+				}
+			}
+			if column > 0 {
 				break
 			}
 		}
@@ -374,7 +379,7 @@ func main() {
 	cascademenu.SetSubmenu(submenu)
 
 	var menuitem *gtk.MenuItem
-	menuitem = gtk.NewMenuItemWithMnemonic("E_xit")
+	menuitem = gtk.NewMenuItemWithMnemonic("_Exit")
 	menuitem.Connect("activate", func() {
 		gtk.MainQuit()
 	})
