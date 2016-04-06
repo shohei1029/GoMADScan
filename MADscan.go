@@ -32,6 +32,7 @@ type arguments struct {
 	filterPath string
 	outputPath string
 	ignoreCase bool
+	perfectMatch bool
 	delim      string
 }
 
@@ -94,7 +95,7 @@ func getKeywords(key string, ignoreCase bool) ([]string, error) {
 	return keyList, err
 }
 
-func searchKeywords(column int, inputPath string, delim string, keyList []string, ignoreCase bool) ([]string, error) {
+func searchKeywords(column int, inputPath string, delim string, keyList []string, ignoreCase bool, perfectMatch bool) ([]string, error) {
 	matchedLines := make([]string, 0, minSize)
 	lines, err := ioutil.ReadFile(inputPath)
 	if err != nil {
@@ -109,7 +110,7 @@ func searchKeywords(column int, inputPath string, delim string, keyList []string
 				s[i] = strings.ToUpper(s[i])
 			}
 			for _, key := range keyList {
-				if s[i] == key {
+				if (perfectMatch && s[i] == key) ||	(!perfectMatch && strings.Index(s[i], key) > -1) {
 					matchedLines = append(matchedLines, line)
 					notMatched = false
 					break
@@ -138,7 +139,7 @@ func getKeysearchWords(arg arguments) (int, error) {
 		return -1, err
 	}
 	fmt.Println("Read: " + arg.inputPath)
-	matchedLines, err := searchKeywords(arg.column, arg.inputPath, arg.delim, keyList, arg.ignoreCase)
+	matchedLines, err := searchKeywords(arg.column, arg.inputPath, arg.delim, keyList, arg.ignoreCase, arg.perfectMatch)
 	fmt.Printf("Write: %s, n=", arg.outputPath)
 	fmt.Println(len(matchedLines))
 	if len(matchedLines) == 0 || err != nil {
@@ -211,6 +212,7 @@ func main() {
 		filepath.Join(dir, "/src/github.com/carushi/MADscan/data/Ras_gene_list.txt"),
 		filepath.Join(dir, "/src/github.com/carushi/MADscan/data/output.txt"),
 		false,
+		true,
 		"\t"}
 
 	//--------------------------------------------------------
@@ -332,6 +334,16 @@ func main() {
 		}
 	})
 	buttons.Add(checkbutton)
+
+	checkMatchButton := gtk.NewCheckButtonWithLabel("Partial matching/Perfect matching")
+	checkMatchButton.Connect("toggled", func() {
+		if checkMatchButton.GetActive() {
+			arg.perfectMatch = false
+		} else {
+			arg.perfectMatch = true
+		}
+	})
+	buttons.Add(checkMatchButton)
 
 	combobox := gtk.NewComboBoxText()
 	for _, delim := range delimName {
