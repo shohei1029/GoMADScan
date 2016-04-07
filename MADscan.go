@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	delimName = []string{"Select deliminator", "tab (\\t)", "space ( )", "comma (,)", "period (.)", "colon (:)"}
+	delimName = []string{"Select delimiter", "tab (\\t)", "space ( )", "comma (,)", "period (.)", "colon (:)"}
 	delimList = []string{"\t", "\t", " ", ",", ".", ":"}
 )
 
@@ -43,7 +43,7 @@ func isAlphaNum(c byte) bool {
 	return true
 }
 
-func (a *arguments) setDeliminator() {
+func (a *arguments) setDelimiter() {
 	if len(a.delim) > 1 {
 		for i, delim := range delimName {
 			if a.delim == delim {
@@ -132,7 +132,7 @@ func output(outputPath string, matchedLines []string) {
 }
 
 func getKeysearchWords(arg arguments) (int, error) {
-	arg.setDeliminator()
+	arg.setDelimiter()
 	fmt.Println("Read: " + arg.filterPath)
 	keyList, err := getKeywords(arg.filterPath, arg.ignoreCase)
 	if err != nil {
@@ -335,7 +335,7 @@ func main() {
 	})
 	buttons.Add(checkbutton)
 
-	checkMatchButton := gtk.NewCheckButtonWithLabel("Partial matching/Perfect matching")
+	checkMatchButton := gtk.NewCheckButtonWithLabel("Partial matching / Perfect matching")
 	checkMatchButton.Connect("toggled", func() {
 		if checkMatchButton.GetActive() {
 			arg.perfectMatch = false

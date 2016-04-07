@@ -29,7 +29,7 @@ go get github.com/carushi/MADscan
 
 ### Example
 
-1. Choose input file such as tab deliminated file (specified in ``Select deliminator'' button)
+1. Choose input file such as tab delimited file (specified in ``Select delimiter'' button)
 2. Choose output file (default: MADscan/data/output.txt)
 3. Choose keyword file (containing each keyword in a single line such as gene id)
 4. Set column position (0: search all columns, 1: search 1st column, ...)
