@@ -437,7 +437,7 @@ func main() {
 		dialog.SetName("MADscan")
 		dialog.SetProgramName("MADscan")
 		dialog.SetAuthors(authors())
-		dialog.SetLicense("GPL v3")
+		dialog.SetLicense("LGPL v3")
 		dialog.SetWrapLicense(true)
 		dialog.Run()
 		dialog.Destroy()

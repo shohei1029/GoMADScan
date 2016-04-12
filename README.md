@@ -10,7 +10,6 @@ Modification associated database scanner based on GUI inteface using go-gtk.
 * It is intended to achieve user-friendly keyword searching for character separated files such as modification dataset available in [PhosphoSitePlus](http://www.phosphosite.org/homeAction.action).
 * MADscan also supports '\n', '\r', and '\r\n' as a newline character.
 
-
 ### Downloads
 
 Type a below command in your terminal.
@@ -26,6 +25,7 @@ go get github.com/carushi/MADscan
 
 * go-gtk (including GTK-Development-Packages)
 	* [Please refer go-gtk repository](https://github.com/mattn/go-gtk)
+	* I refered ``demo'' of go-gtk for implementation.
 
 ### Example
 
