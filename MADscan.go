@@ -185,7 +185,7 @@ func main() {
 	framebox1 := gtk.NewVBox(false, 1)
 	frame1.Add(framebox1)
 
-	frame2 := gtk.NewFrame("Column position")
+	frame2 := gtk.NewFrame("Column index for search (0: all columns)")
 	framebox2 := gtk.NewVBox(false, 1)
 	frame2.Add(framebox2)
 
