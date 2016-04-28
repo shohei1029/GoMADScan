@@ -21,23 +21,39 @@ go get github.com/carushi/MADscan
 ### Requires
 
 * go language
-	* [Please visit a public website for go language](https://golang.org)
+	* Reference:[golang.org](https://golang.org)
 
 * go-gtk (including GTK-Development-Packages)
-	* [Please refer go-gtk repository](https://github.com/mattn/go-gtk)
-	* I refered ``demo'' of go-gtk for implementation.
+	* Reference: [go-gtk repository](https://github.com/mattn/go-gtk)
+	* I refered "demo" of go-gtk for implementation.
+
+### GOPATH
+Set \$GOPATH appropriately. I assume that \$GOPATH directory contains
+
+* GOPATH/
+	* bin/
+	* pkg/
+	* src/
+
+If you set GOPATH to \$HOME/work, type the command as below.
+
+```
+mkdir $HOME/work
+export GOPATH=$HOME/work
+```
+Reference: [golang.org](https://golang.org/doc/code.html).
 
 ### Example
 
-1. Choose input file such as tab delimited file (specified in ``Select delimiter'' button)
-2. Choose output file (default: MADscan/data/output.txt)
-3. Choose keyword file (containing each keyword in a single line such as gene id)
-4. Set column position (0: search all columns, 1: search 1st column, ...)
-5. Check ``Ignore lower/upper case'' for more flexible search
+1. Type "MADscan" in your terminal.
+2. Choose input (database) file such as tab delimited file (specified in ``Select delimiter'' button)
+3. Choose output file (default: MADscan/data/output.txt)
+4. Choose keyword file (containing each keyword in a single line such as gene id)
+5. Set column position (0: search all columns, 1: search 1st column, ...)
+6. Check "Ignore lower/upper case" for more flexible search
 6. Push Run button!
 	
 ### ToDo
-
 * filename editing for output file
 * header skipping or including
 
