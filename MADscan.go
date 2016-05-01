@@ -27,13 +27,13 @@ func authors() []string {
 }
 
 type arguments struct {
-	column     int
-	inputPath  string
-	filterPath string
-	outputPath string
-	ignoreCase bool
+	column       int
+	inputPath    string
+	filterPath   string
+	outputPath   string
+	ignoreCase   bool
 	perfectMatch bool
-	delim      string
+	delim        string
 }
 
 func isAlphaNum(c byte) bool {
@@ -110,7 +110,7 @@ func searchKeywords(column int, inputPath string, delim string, keyList []string
 				s[i] = strings.ToUpper(s[i])
 			}
 			for _, key := range keyList {
-				if (perfectMatch && s[i] == key) ||	(!perfectMatch && strings.Index(s[i], key) > -1) {
+				if (perfectMatch && s[i] == key) || (!perfectMatch && strings.Index(s[i], key) > -1) {
 					matchedLines = append(matchedLines, line)
 					notMatched = false
 					break
@@ -208,7 +208,7 @@ func main() {
 	//--------------------------------------------------------
 	arg := arguments{
 		0,
-		filepath.Join(dir, "/src/github.com/carushi/MADscan/data/Acetylation_site_dataset"),
+		filepath.Join(dir, "/src/github.com/carushi/MADscan/data/Sample_modification_site"),
 		filepath.Join(dir, "/src/github.com/carushi/MADscan/data/Ras_gene_list.txt"),
 		filepath.Join(dir, "/src/github.com/carushi/MADscan/data/output.txt"),
 		false,
@@ -256,9 +256,33 @@ func main() {
 	inputs.Add(ientry)
 	framebox2.PackStart(inputs, false, false, 0)
 
-	//--------------------------------------------------------
-	// FilterArea
-	//--------------------------------------------------------
+	fentry := gtk.NewEntry()
+	fentry.SetText(arg.filterPath)
+	inputs = gtk.NewHBox(false, 1)
+	button = gtk.NewButtonWithLabel("Choose keyword file")
+	button.Clicked(func() {
+		//--------------------------------------------------------
+		// GtkFileChooserDialog
+		//--------------------------------------------------------
+		filechooserdialog := gtk.NewFileChooserDialog(
+			"Choose File...",
+			button.GetTopLevelAsWindow(),
+			gtk.FILE_CHOOSER_ACTION_OPEN,
+			gtk.STOCK_OK,
+			gtk.RESPONSE_ACCEPT)
+		filter := gtk.NewFileFilter()
+		filter.AddPattern("*")
+		filechooserdialog.AddFilter(filter)
+		filechooserdialog.Response(func() {
+			arg.filterPath = filechooserdialog.GetFilename()
+			fentry.SetText(arg.filterPath)
+			filechooserdialog.Destroy()
+		})
+		filechooserdialog.Run()
+	})
+	inputs.Add(button)
+	inputs.Add(fentry)
+	framebox2.PackStart(inputs, false, false, 0)
 
 	oentry := gtk.NewEntry()
 	oentry.SetText(arg.outputPath)
@@ -286,38 +310,6 @@ func main() {
 	})
 	inputs.Add(button)
 	inputs.Add(oentry)
-	framebox2.PackStart(inputs, false, false, 0)
-
-	//--------------------------------------------------------
-	// FilterArea
-	//--------------------------------------------------------
-
-	fentry := gtk.NewEntry()
-	fentry.SetText(arg.filterPath)
-	inputs = gtk.NewHBox(false, 1)
-	button = gtk.NewButtonWithLabel("Choose keyword file")
-	button.Clicked(func() {
-		//--------------------------------------------------------
-		// GtkFileChooserDialog
-		//--------------------------------------------------------
-		filechooserdialog := gtk.NewFileChooserDialog(
-			"Choose File...",
-			button.GetTopLevelAsWindow(),
-			gtk.FILE_CHOOSER_ACTION_OPEN,
-			gtk.STOCK_OK,
-			gtk.RESPONSE_ACCEPT)
-		filter := gtk.NewFileFilter()
-		filter.AddPattern("*")
-		filechooserdialog.AddFilter(filter)
-		filechooserdialog.Response(func() {
-			arg.filterPath = filechooserdialog.GetFilename()
-			fentry.SetText(arg.filterPath)
-			filechooserdialog.Destroy()
-		})
-		filechooserdialog.Run()
-	})
-	inputs.Add(button)
-	inputs.Add(fentry)
 	framebox2.PackStart(inputs, false, false, 0)
 
 	buttons := gtk.NewHBox(false, 1)
@@ -373,6 +365,9 @@ func main() {
 	//--------------------------------------------------------
 	runbutton := gtk.NewButtonWithLabel("Run")
 	runbutton.Clicked(func() {
+        arg.inputPath = ientry.GetText()
+        arg.filterPath = fentry.GetText()
+        arg.outputPath = oentry.GetText()
 		num, err := getKeysearchWords(arg)
 		buffer.GetStartIter(&end)
 		if err != nil {
@@ -397,7 +392,7 @@ func main() {
 	framebox2.Add(swin)
 
 	// buffer.Connect("changed", func() {
-	// 	// fmt.Println("changed")
+	//  // fmt.Println("changed")
 	// })
 
 	//--------------------------------------------------------
