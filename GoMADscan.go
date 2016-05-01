@@ -154,8 +154,8 @@ func main() {
 
 	window := gtk.NewWindow(gtk.WINDOW_TOPLEVEL)
 	window.SetPosition(gtk.WIN_POS_CENTER)
-	window.SetTitle("GoMADscan")
-	window.SetIconName("GoMADscan-info")
+	window.SetTitle("GoMADScan")
+	window.SetIconName("GoMADScan-info")
 	window.Connect("destroy", func(ctx *glib.CallbackContext) {
 		// fmt.Println("got destroy!", ctx.Data().(string))
 		gtk.MainQuit()
@@ -196,7 +196,7 @@ func main() {
 	// GtkImage
 	//--------------------------------------------------------
 	dir := os.Getenv("GOPATH")
-	imagefile := filepath.Join(dir, "/src/github.com/carushi/GoMADscan/image/logo.png")
+	imagefile := filepath.Join(dir, "/src/github.com/carushi/GoMADScan/image/logo.png")
 	label := gtk.NewLabel("Go-based Modification associated database scanner")
 	label.ModifyFontEasy("DejaVu Serif 15")
 	framebox1.PackStart(label, false, true, 0)
@@ -208,9 +208,9 @@ func main() {
 	//--------------------------------------------------------
 	arg := arguments{
 		0,
-		filepath.Join(dir, "/src/github.com/carushi/GoMADscan/data/Sample_modification_site"),
-		filepath.Join(dir, "/src/github.com/carushi/GoMADscan/data/Ras_gene_list.txt"),
-		filepath.Join(dir, "/src/github.com/carushi/GoMADscan/data/output.txt"),
+		filepath.Join(dir, "/src/github.com/carushi/GoMADScan/data/Sample_modification_site"),
+		filepath.Join(dir, "/src/github.com/carushi/GoMADScan/data/Ras_gene_list.txt"),
+		filepath.Join(dir, "/src/github.com/carushi/GoMADScan/data/output.txt"),
 		false,
 		true,
 		"\t"}
@@ -365,16 +365,17 @@ func main() {
 	//--------------------------------------------------------
 	runbutton := gtk.NewButtonWithLabel("Run")
 	runbutton.Clicked(func() {
-        arg.inputPath = ientry.GetText()
-        arg.filterPath = fentry.GetText()
-        arg.outputPath = oentry.GetText()
+		arg.inputPath = ientry.GetText()
+		arg.filterPath = fentry.GetText()
+		arg.outputPath = oentry.GetText()
 		num, err := getKeysearchWords(arg)
 		buffer.GetStartIter(&end)
 		if err != nil {
 			log.Println(err)
 			buffer.Insert(&end, err.Error()+"\n")
 		} else {
-			buffer.Insert(&end, "Results n="+strconv.Itoa(num)+"\n")
+			buffer.Insert(&end, "GoMADScan found "+strconv.Itoa(num)+
+				" modification sites.\nThe result is written into "+arg.outputPath+".\n")
 		}
 	})
 	buttons.Add(runbutton)
@@ -429,8 +430,8 @@ func main() {
 	menuitem = gtk.NewMenuItemWithMnemonic("_About")
 	menuitem.Connect("activate", func() {
 		dialog := gtk.NewAboutDialog()
-		dialog.SetName("GoMADscan")
-		dialog.SetProgramName("GoMADscan")
+		dialog.SetName("GoMADScan")
+		dialog.SetProgramName("GoMADScan")
 		dialog.SetAuthors(authors())
 		dialog.SetLicense("LGPL v3")
 		dialog.SetWrapLicense(true)
@@ -443,7 +444,7 @@ func main() {
 	// GtkStatusbar
 	//--------------------------------------------------------
 	statusbar := gtk.NewStatusbar()
-	context_id := statusbar.GetContextId("GoMADscan v0")
+	context_id := statusbar.GetContextId("GoMADScan v0")
 	statusbar.Push(context_id, "Simple search GUI")
 
 	framebox2.PackStart(statusbar, false, false, 0)
