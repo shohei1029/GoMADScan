@@ -154,8 +154,8 @@ func main() {
 
 	window := gtk.NewWindow(gtk.WINDOW_TOPLEVEL)
 	window.SetPosition(gtk.WIN_POS_CENTER)
-	window.SetTitle("MADscan")
-	window.SetIconName("MADscan-info")
+	window.SetTitle("GoMADscan")
+	window.SetIconName("GoMADscan-info")
 	window.Connect("destroy", func(ctx *glib.CallbackContext) {
 		// fmt.Println("got destroy!", ctx.Data().(string))
 		gtk.MainQuit()
@@ -196,8 +196,8 @@ func main() {
 	// GtkImage
 	//--------------------------------------------------------
 	dir := os.Getenv("GOPATH")
-	imagefile := filepath.Join(dir, "/src/github.com/carushi/MADscan/image/logo.png")
-	label := gtk.NewLabel("Modification associated database scanner")
+	imagefile := filepath.Join(dir, "/src/github.com/carushi/GoMADscan/image/logo.png")
+	label := gtk.NewLabel("Go-based Modification associated database scanner")
 	label.ModifyFontEasy("DejaVu Serif 15")
 	framebox1.PackStart(label, false, true, 0)
 	image := gtk.NewImageFromFile(imagefile)
@@ -208,9 +208,9 @@ func main() {
 	//--------------------------------------------------------
 	arg := arguments{
 		0,
-		filepath.Join(dir, "/src/github.com/carushi/MADscan/data/Sample_modification_site"),
-		filepath.Join(dir, "/src/github.com/carushi/MADscan/data/Ras_gene_list.txt"),
-		filepath.Join(dir, "/src/github.com/carushi/MADscan/data/output.txt"),
+		filepath.Join(dir, "/src/github.com/carushi/GoMADscan/data/Sample_modification_site"),
+		filepath.Join(dir, "/src/github.com/carushi/GoMADscan/data/Ras_gene_list.txt"),
+		filepath.Join(dir, "/src/github.com/carushi/GoMADscan/data/output.txt"),
 		false,
 		true,
 		"\t"}
@@ -429,8 +429,8 @@ func main() {
 	menuitem = gtk.NewMenuItemWithMnemonic("_About")
 	menuitem.Connect("activate", func() {
 		dialog := gtk.NewAboutDialog()
-		dialog.SetName("MADscan")
-		dialog.SetProgramName("MADscan")
+		dialog.SetName("GoMADscan")
+		dialog.SetProgramName("GoMADscan")
 		dialog.SetAuthors(authors())
 		dialog.SetLicense("LGPL v3")
 		dialog.SetWrapLicense(true)
@@ -443,7 +443,7 @@ func main() {
 	// GtkStatusbar
 	//--------------------------------------------------------
 	statusbar := gtk.NewStatusbar()
-	context_id := statusbar.GetContextId("MADscan v0")
+	context_id := statusbar.GetContextId("GoMADscan v0")
 	statusbar.Push(context_id, "Simple search GUI")
 
 	framebox2.PackStart(statusbar, false, false, 0)
