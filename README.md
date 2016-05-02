@@ -17,7 +17,7 @@ If you already have an environment to use go lang and gtk+, type a below command
 go get github.com/carushi/GoMADScan
 ```
 
-For a more detailed instruction, check our [wikipage](https://github.com/carushi/GoMADScan/wiki).
+For a more detailed instruction , check our [wikipage](https://github.com/carushi/GoMADScan/wiki).
 
 ![](image/window.png)
 
