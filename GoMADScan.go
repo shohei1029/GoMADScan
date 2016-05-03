@@ -320,7 +320,7 @@ func main() {
 	//--------------------------------------------------------
 	// GtkCheckButton
 	//--------------------------------------------------------
-	checkbutton := gtk.NewCheckButtonWithLabel("Ignore lower/upper case")
+	checkbutton := gtk.NewCheckButtonWithLabel("Case-insensitive (lower/upper)")
 	checkbutton.Connect("toggled", func() {
 		if checkbutton.GetActive() {
 			arg.ignoreCase = true
