@@ -196,6 +196,9 @@ func main() {
 	// GtkImage
 	//--------------------------------------------------------
 	dir := os.Getenv("GOPATH")
+	if dir == "" {
+		dir = filepath.Join(os.Getenv("HOME"), "/go")
+	}
 	imagefile := filepath.Join(dir, "/src/github.com/carushi/GoMADScan/image/logo.png")
 	label := gtk.NewLabel("Go-based Modification associated database scanner")
 	label.ModifyFontEasy("DejaVu Serif 15")
