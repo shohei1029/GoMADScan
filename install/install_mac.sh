@@ -1,3 +1,6 @@
+#!/bin/sh
+set  -eu
+
 brew install git
 brew install go
 brew install pkgconfig
