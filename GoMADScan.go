@@ -212,7 +212,7 @@ func main() {
 	arg := arguments{
 		0,
 		filepath.Join(dir, "/src/github.com/carushi/GoMADScan/data/Sample_modification_site"),
-		filepath.Join(dir, "/src/github.com/carushi/GoMADScan/data/Ras_gene_list.txt"),
+		filepath.Join(dir, "/src/github.com/carushi/GoMADScan/data/Ras_gene_synonym.txt"),
 		filepath.Join(dir, "/src/github.com/carushi/GoMADScan/data/output.txt"),
 		false,
 		true,
