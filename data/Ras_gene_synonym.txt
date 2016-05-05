@@ -1,4 +1,3 @@
-Ras
 H-Ras
 H-Ras
 H-RasIDX
@@ -64,14 +63,12 @@ RasL11B
 Ris
 RasL12
 FLJ22655
-
-Rho
 RhoA
 ARHA
 RhoH12
 RhoB
 ARHB
-RhoH6
+hoH6
 RhoC
 ARHC
 RhoH9
@@ -126,8 +123,6 @@ ARHV
 RhoBTB1
 RhoBTB2
 DBC2
-
-Arf
 Arf1
 Arf3
 ARf4
@@ -168,8 +163,6 @@ ArfRP2
 Arl2L1
 FLJ22595
 LOC339231
-
-Rab
 Rab1A
 Rab1B
 Rab2A
@@ -265,9 +258,7 @@ RabL4
 RayL
 RasEF
 Rab45
-
 Ran
-
 Miro-1
 RhoT1
 Miro-2
