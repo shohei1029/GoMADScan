@@ -36,6 +36,8 @@ For a more detailed instruction , check our [wikipage](https://github.com/carush
 	
 ## ToDo
 * header skipping or including
-
+* synonym search
+* embedding image
+* binary distribution
 
 
