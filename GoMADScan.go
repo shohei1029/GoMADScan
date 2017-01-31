@@ -330,7 +330,7 @@ func main() {
 	})
 	buttons.Add(checkbutton)
 
-	checkMatchButton := gtk.NewCheckButtonWithLabel("Partial matching / Perfect matching")
+	checkMatchButton := gtk.NewCheckButtonWithLabel("Perfect matching -> Partial matching")
 	checkMatchButton.Connect("toggled", func() {
 		if checkMatchButton.GetActive() {
 			arg.perfectMatch = false

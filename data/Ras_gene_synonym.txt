@@ -2,6 +2,7 @@ H-Ras
 H-Ras
 H-RasIDX
 N-Ras
+K-Ras
 K-Ras2B
 K-Ras2A
 R-Ras
