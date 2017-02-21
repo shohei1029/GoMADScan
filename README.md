@@ -8,6 +8,10 @@
 * GoMADScan is developed to achieve **user-friendly keyword searching**
 * GoMADScan can handle character separated values (CSV) files such as the dataset available in [PhosphoSitePlus](http://www.phosphosite.org/homeAction.action).
 
+## How to use
+
+[![](http://img.youtube.com/vi/hVTbAsErjuE/0.jpg)](https://www.youtube.com/watch?v=hVTbAsErjuE)
+
 
 ## Downloads
 
@@ -40,8 +44,5 @@ For a more detailed instruction , check our [wikipage](https://github.com/carush
 * embedding image
 * binary distribution
 
-## How to use
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/hVTbAsErjuE" frameborder="0" allowfullscreen></iframe>
 
 
