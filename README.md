@@ -10,8 +10,7 @@
 
 ## How to use
 
-[![](http://img.youtube.com/vi/hVTbAsErjuE/0.jpg)](https://www.youtube.com/watch?v=hVTbAsErjuE)
-
+[![](http://img.youtube.com/vi/PCXOWjk9d_E/0.jpg)](https://www.youtube.com/watch?v=PCXOWjk9d_E)
 
 ## Downloads
 
