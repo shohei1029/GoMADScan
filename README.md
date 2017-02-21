@@ -42,4 +42,6 @@ For a more detailed instruction , check our [wikipage](https://github.com/carush
 
 ## How to use
 
-![](http://github.com/carushi/GoMADScan/image/GoMADScan_how_to.mp4.gif)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/hVTbAsErjuE" frameborder="0" allowfullscreen></iframe>
+
+
