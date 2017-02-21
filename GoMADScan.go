@@ -124,29 +124,48 @@ func searchKeywords(column int, inputPath string, delim string, keyList []string
 	return matchedLines, err
 }
 
-func output(outputPath string, matchedLines []string) {
+func outputToFile(outputPath string, matchedLines []string) {
 	err := ioutil.WriteFile(outputPath, []byte(strings.Join(matchedLines[:], "\n")), 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func getKeysearchWords(arg arguments) (int, error) {
+func searchResult(outputPath string, matchedLines []string) (string) {
+	str := "GoMADScan found "
+	num := len(matchedLines)
+	if num > 0 {
+		str += strconv.Itoa(num)+" modification sites.\n"
+		str += "The result is written into "+outputPath+".\n"
+		for i, key := range matchedLines {
+			if i > 2 {
+				str += "...\n"
+				break
+			} else{
+				str += strconv.Itoa(i+1)+": "+key+"\n"
+			}
+		}
+	} else {
+		str += "no modification sites.\n"
+	}
+	return str
+}
+
+func getKeysearchWords(arg arguments) (string, error) {
 	arg.setDelimiter()
 	fmt.Println("Read: " + arg.filterPath)
 	keyList, err := getKeywords(arg.filterPath, arg.ignoreCase)
 	if err != nil {
-		return -1, err
+		return "", err
 	}
 	fmt.Println("Read: " + arg.inputPath)
 	matchedLines, err := searchKeywords(arg.column, arg.inputPath, arg.delim, keyList, arg.ignoreCase, arg.perfectMatch)
 	fmt.Printf("Write: %s, n=", arg.outputPath)
 	fmt.Println(len(matchedLines))
-	if len(matchedLines) == 0 || err != nil {
-		return 0, err
+	if len(matchedLines) > 0 && err == nil {
+		outputToFile(arg.outputPath, matchedLines)
 	}
-	output(arg.outputPath, matchedLines)
-	return len(matchedLines), err
+	return searchResult(arg.outputPath, matchedLines), err
 }
 
 func main() {
@@ -211,7 +230,7 @@ func main() {
 	//--------------------------------------------------------
 	arg := arguments{
 		0,
-		filepath.Join(dir, "/src/github.com/carushi/GoMADScan/data/Sample_modification_site"),
+		filepath.Join(dir, "/src/github.com/carushi/GoMADScan/data/Sample_modification_site.txt"),
 		filepath.Join(dir, "/src/github.com/carushi/GoMADScan/data/Ras_gene_synonym.txt"),
 		filepath.Join(dir, "/src/github.com/carushi/GoMADScan/data/output.txt"),
 		false,
@@ -371,15 +390,15 @@ func main() {
 		arg.inputPath = ientry.GetText()
 		arg.filterPath = fentry.GetText()
 		arg.outputPath = oentry.GetText()
-		num, err := getKeysearchWords(arg)
+		output, _ := getKeysearchWords(arg)
 		buffer.GetStartIter(&end)
-		if err != nil {
-			log.Println(err)
-			buffer.Insert(&end, err.Error()+"\n")
-		} else {
-			buffer.Insert(&end, "GoMADScan found "+strconv.Itoa(num)+
-				" modification sites.\nThe result is written into "+arg.outputPath+".\n")
-		}
+		buffer.Insert(&end, output)
+		// if err != nil {
+		// 	log.Println(err)
+		// 	buffer.Insert(&end, err.Error()+"\n")
+		// } else {
+			// buffer.Insert(&end, output)
+		// }
 	})
 	buttons.Add(runbutton)
 	framebox2.PackStart(buttons, false, false, 0)
@@ -447,8 +466,8 @@ func main() {
 	// GtkStatusbar
 	//--------------------------------------------------------
 	statusbar := gtk.NewStatusbar()
-	context_id := statusbar.GetContextId("GoMADScan v0")
-	statusbar.Push(context_id, "Simple search GUI")
+	contextID := statusbar.GetContextId("GoMADScan v0")
+	statusbar.Push(contextID, "Simple search GUI")
 
 	framebox2.PackStart(statusbar, false, false, 0)
 

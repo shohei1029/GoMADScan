@@ -40,4 +40,6 @@ For a more detailed instruction , check our [wikipage](https://github.com/carush
 * embedding image
 * binary distribution
 
+## How to use
 
+![](http://github.com/carushi/GoMADScan/image/GoMADScan_how_to.mp4.gif)
